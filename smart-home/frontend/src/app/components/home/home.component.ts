@@ -11,5 +11,10 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
   }
+  isSpecialDay() {
+    const now = new Date();
+    return now.getDate() === 1;
+  }
+
 
 }
