@@ -1,0 +1,8 @@
+<h1 mat-dialog-title>Löschen</h1>
+<div mat-dialog-content>
+    <p>Wollen Sie device <b>{{data.name}}</b> wirklich löschen?</p>
+</div>
+<div mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">No Thanks</button>
+    <button mat-button [mat-dialog-close]="true" cdkFocusInitial (click)="onYesClick()">Ok</button>
+</div>

@@ -1,0 +1,23 @@
+<app-section-ct title="Overview Sensor">
+    <button mat-icon-button color="primary" class="add-device" matTooltip="Add a new device" (click)="addNew()">
+        <mat-icon>add_box</mat-icon>
+    </button>
+    <span *ngFor="let device of devicesVisible;" class="box">
+        <mat-slide-toggle class="device-slider" (change)="updateDevice(device)" [checked]="device.enabled" [matTooltip]="getSliderTooltip(device)">{{device.name}}</mat-slide-toggle>
+         <button mat-icon-button class="remove-device" matTooltip="Remove device" (click)="remove(device)">
+            <mat-icon>delete</mat-icon>
+        </button>
+    </span>
+</app-section-ct>
+
+<app-section-ct title="Diagram Watt">
+    <app-watt-diagram [devices]="devices"></app-watt-diagram>
+</app-section-ct>
+
+<app-section-ct title="Diagram Temperature">
+    <app-temperature-diagram [devices]="devices"></app-temperature-diagram>
+</app-section-ct>
+
+<app-section-ct title="Current Data per Sensor">
+    <app-current-data [devices]="devices"></app-current-data>
+</app-section-ct>

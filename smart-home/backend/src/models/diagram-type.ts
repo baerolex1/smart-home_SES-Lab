@@ -1,0 +1,1 @@
+export type DiagramType = 'hour' | 'day' | 'week' | 'month' | 'year';

@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum DeviceType {
+  TEMPERATURE
+  CURRENT
+}
+
+model Device {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  tempSoll  Decimal?
+  name      String  @unique
+  enabled   Boolean @default(false)
+  type      DeviceType
+
+  measurements Measure[]
+}
+
+model Measure {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  temperatureInDegree Decimal?
+  currentInAmpere     Decimal?
+  currentInAmpereL1   Decimal?
+  currentInAmpereL2   Decimal?
+  currentInAmpereL3   Decimal?
+
+  voltageInVolt       Decimal?
+  voltageInVoltL1     Decimal?
+  voltageInVoltL2     Decimal?
+  voltageInVoltL3     Decimal?
+
+  powerInWatts        Decimal?
+  powerInWattsL1      Decimal?
+  powerInWattsL2      Decimal?
+  powerInWattsL3      Decimal?
+
+  powerFactor         Decimal?
+  powerFactorL1       Decimal?
+  powerFactorL2       Decimal?
+  powerFactorL3       Decimal?
+
+  frequencyInHertz    Decimal?
+  Device              Device? @relation(fields: [deviceId], references: [id])
+  deviceId            String?
+  importEnergyInkWh   Decimal?
+  exportEnergyInkWh   Decimal?
+}

@@ -1,0 +1,43 @@
+<div class="wrapper">
+
+    <ng-container *ngFor="let device of devicesWithMeasure;">
+        <div *ngIf="device.device.name.includes('630')" class="item">
+            <div class="header-1">Entire Consumption of the SES Lab</div>
+            <div class="header">{{device.device.name}}</div>
+            <div *ngIf="device.measure.exportEnergyInkWh">Export Energy: <span class="highlight">{{round(device.measure.exportEnergyInkWh)}}</span> kWh</div>
+            <div *ngIf="device.measure.importEnergyInkWh">Import Energy: <span class="highlight">{{round(device.measure.importEnergyInkWh)}}</span> kWh</div>
+            <div *ngIf="device.measure.voltageInVoltL1">Voltage_L1: <span class="highlight">{{round(device.measure.voltageInVoltL1)}}</span> V</div>
+            <div *ngIf="device.measure.voltageInVoltL2">Voltage_L2: <span class="highlight">{{round(device.measure.voltageInVoltL2)}}</span> V</div>
+            <div *ngIf="device.measure.voltageInVoltL3">Voltage_L3: <span class="highlight">{{round(device.measure.voltageInVoltL3)}}</span> V</div>
+            <div *ngIf="device.measure.currentInAmpereL1">Current_L1: <span class="highlight">{{round(device.measure.currentInAmpereL1)}}</span> A</div>
+            <div *ngIf="device.measure.currentInAmpereL2">Current_L2: <span class="highlight">{{round(device.measure.currentInAmpereL2)}}</span> A</div>
+            <div *ngIf="device.measure.currentInAmpereL3">Current_L3: <span class="highlight">{{round(device.measure.currentInAmpereL3)}}</span> A</div>
+            <div *ngIf="device.measure.powerInWattsL1">Power_L1: <span class="highlight">{{round(device.measure.powerInWattsL1)}}</span> W</div>
+            <div *ngIf="device.measure.powerInWattsL2">Power_L2: <span class="highlight">{{round(device.measure.powerInWattsL2)}}</span> W</div>
+            <div *ngIf="device.measure.powerInWattsL3">Power_L3: <span class="highlight">{{round(device.measure.powerInWattsL3)}}</span> W</div>
+            <div *ngIf="device.measure.powerFactorL1">PowerFactor_L1: <span class="highlight">{{round(device.measure.powerFactorL1)}}</span></div>
+            <div *ngIf="device.measure.powerFactorL2">PowerFactor_L2: <span class="highlight">{{round(device.measure.powerFactorL2)}}</span></div>
+            <div *ngIf="device.measure.powerFactorL3">PowerFactor_L3: <span class="highlight">{{round(device.measure.powerFactorL3)}}</span></div>
+            <div *ngIf="device.measure.frequencyInHertz">Frequency: <span class="highlight">{{round(device.measure.frequencyInHertz)}}</span> Hz</div>
+        </div>
+    </ng-container>
+
+
+    <ng-container *ngFor="let device of devicesWithMeasure;">
+        <div *ngIf="!device.device.name.includes('630')" class="item">
+            <div class="header-1">Sensor</div>
+            <div class="header ">{{device.device.name}}</div>
+            <div class="temperature" *ngIf="device.device.type === 'TEMPERATURE'">Soll Temperatur: <span class="highlight">{{round(device.device.tempSoll)}}</span> °C</div>
+
+            <div *ngIf="device.measure.exportEnergyInkWh">Export Energy: <span class="highlight">{{round(device.measure.exportEnergyInkWh)}}</span> kWh</div>
+            <div *ngIf="device.measure.importEnergyInkWh">Import Energy: <span class="highlight">{{round(device.measure.importEnergyInkWh)}}</span> kWh</div>
+            <div *ngIf="device.measure.temperatureInDegree">Temperature: <span class="highlight">{{round(device.measure.temperatureInDegree)}}</span> °C</div>
+            <div *ngIf="device.measure.voltageInVolt">Voltage: <span class="highlight">{{round(device.measure.voltageInVolt)}}</span> V</div>
+            <div *ngIf="device.measure.powerInWatts">Power: <span class="highlight">{{round(device.measure.powerInWatts)}}</span> W</div>
+            <div *ngIf="device.measure.powerFactor">PowerFactor: <span class="highlight">{{round(device.measure.powerFactor)}}</span></div>
+            <div *ngIf="device.measure.currentInAmpere">Current: <span class="highlight">{{round(device.measure.currentInAmpere)}}</span> A</div>
+            <div *ngIf="device.measure.frequencyInHertz">Frequency: <span class="highlight">{{round(device.measure.frequencyInHertz)}}</span> Hz</div>
+        </div>
+    </ng-container>
+
+</div>

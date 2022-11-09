@@ -1,0 +1,21 @@
+<h1 mat-dialog-title>Add new device</h1>
+<div mat-dialog-content>
+    <p>Name</p>
+    <mat-form-field appearance="fill">
+        <mat-label>Name of your device</mat-label>
+        <input matInput [formControl]="name">
+    </mat-form-field>
+    <mat-button-toggle-group [formControl]="type">
+        <mat-button-toggle value="TEMPERATURE">Temperature</mat-button-toggle>
+        <mat-button-toggle value="CURRENT">Current</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <mat-form-field style="margin-top: 8px" appearance="fill" *ngIf="type.value === 'TEMPERATURE'">
+        <mat-label>Set SOLL temperature</mat-label>
+        <input matInput [formControl]="tempSoll">
+    </mat-form-field>
+</div>
+<div mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">Cancel</button>
+    <button mat-button [mat-dialog-close]="getData()" cdkFocusInitial [disabled]="!isValid()">Ok</button>
+</div>
