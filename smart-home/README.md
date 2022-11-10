@@ -1,6 +1,6 @@
 # Smart Home
 
-``git clone https://github.com/simon-ittmann/smart-home.git``
+``https://github.com/baerolex1/smart-home_SES-Lab.git``
 
 ## Server
 
