@@ -44,14 +44,16 @@ export class WattDiagramComponent {
         type: 'spline',
       },
       title: {
-        text: 'Energy Consumption per Sensor'
+        text: 'Power Consumption per Sensor'
       },
       tooltip: {
-        valueSuffix: ' kWh'
+        valueSuffix: ' W'
       },
       yAxis: {
+        min: 0,
+        startOnTick: false,
         title: {
-          text: 'Energy in kWh'
+          text: 'Power [W]'
         }
       },
       xAxis: {

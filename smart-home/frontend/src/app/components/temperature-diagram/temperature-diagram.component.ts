@@ -44,14 +44,16 @@ export class TemperatureDiagramComponent {
         type: 'spline',
       },
       title: {
-        text: 'Energy Consumption per Sensor'
+        text: 'Temperature per Sensor'
       },
       tooltip: {
-        valueSuffix: ' kWh'
+        valueSuffix: ' °C'
       },
       yAxis: {
+        min: 0,
+        startOnTick: false,
         title: {
-          text: 'Energy in kWh'
+          text: 'Temperature [°C]'
         }
       },
       xAxis: {
