@@ -10,11 +10,11 @@
 
 1) ``npm i`` (just initial)
 
-2) Start database ``npm run run:db``
+2) Start database ``npm run run:db`` (start database)
 
 3) Run migrations ``npm run db:deploy`` (just initial)
 
-4) Start backend ``npm run start:dev``
+4) Start backend ``npm run start:dev`` (start backend server)
 
 ### API
 
@@ -52,7 +52,8 @@ GET http://localhost:3000/api/measurements/last/{deviceName}
 POST http://localhost:3000/api/devices
 {
 "name": "device2",
-"enabled": false
+"enabled": false,
+"type": DeviceType
 }
 
 ## Frontend
