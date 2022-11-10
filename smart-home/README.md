@@ -61,6 +61,6 @@ POST http://localhost:3000/api/devices
 
 1) ``npm i``
 
-2) ``npm run start``
+2) ``npm run start:normal``
 
 3) Open http://localhost:4200/ in the browser
