@@ -124,6 +124,6 @@ export class WattDiagramComponent {
         result.push(`${seconds} Seconds`);
       }
 
-    return result.reverse();
+    return result;
   }
 }

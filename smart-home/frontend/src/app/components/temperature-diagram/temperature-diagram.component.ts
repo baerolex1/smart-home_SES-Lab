@@ -99,10 +99,9 @@ export class TemperatureDiagramComponent {
       const values = await this.measureService.getDiagramValues(device.name, this.NUMBER_OF_ENTRIES + 1);
       const usedValues = values.map((entry) => parseFloat(parseFloat(entry['temperatureInDegree']).toFixed(2)));
       const valuesWithZero = this.adjustValuesWithZeros(usedValues)
-
       series.push({
         name: device.name,
-        data: valuesWithZero
+        data: valuesWithZero.reverse()
       })
     }
 
@@ -123,7 +122,6 @@ export class TemperatureDiagramComponent {
         const seconds = (i+1) * 30;
         result.push(`${seconds} Seconds`);
       }
-
-    return result.reverse();
+    return result;
   }
 }
