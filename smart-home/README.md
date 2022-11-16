@@ -31,6 +31,8 @@ GET http://localhost:3000/api/measurements/{deviceName}
 PUT http://localhost:3000/api/devices/{deviceName} 
 {
     "enabled": true
+    "id": string,
+    "name": string,
 }
 
 **Add measure:**
