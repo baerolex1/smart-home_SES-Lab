@@ -1,1 +1,248 @@
-Sketch for Smart Home System WEMOS D1 mini ESP8266 
+Sketch for Smart Home System WEMOS D1 mini ESP8266 with EnergyMeter SDM120
+
+//including libraries
+
+#include <ESP8266HTTPClient.h>                                                                                              //include HTTPClient library
+#include <ESP8266WiFi.h>                                                                                                    //include WiFi library
+#include <ArduinoJson.h>                                                                                                    //include ArduinoJSON library
+#include <Arduino.h>                                                                                                        //include Arduino library
+#include <SoftwareSerial.h>                                                                                                 //include SoftwareSerial library
+#include "PowerMeter.h"                                                                                                     //include PowerMeter library
+#include <WiFiClient.h>                                                                                                     //include WiFiClient library
+#include <LiquidCrystal_I2C.h>
+//Add-On SmartTemperature
+#include <OneWire.h>                                                                                                        //include OneWire libary for temperature sensor
+#include <DallasTemperature.h>                                                                                              //inlcude DallasTemperature libary for temperature sensor
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//declareration of variables
+
+WiFiClient wifiClient;                                                                                                      //Inizialize variable for WiFiClient
+//const char* ssid = "CoSES_WLAN1";                                                                                         //Inizialize variable for WiFi name
+//const char* password = "WhyVer1$tand"; 
+const char* ssid = "Schmohngemeinschaft";                                                                                   //Inizialize variable for WiFi name
+const char* password = "26674745592084253757";                                                                              //Inizialize variable for WiFi password    
+//const char* ssid = "RUT955_83CE";                                                                                         //Inizialize variable for WiFi name
+//const char* password = "Pe0z8GFg";                                                                                        //Inizialize variable for WiFi password
+
+float tempSoll;
+const float tempSoll1 = tempSoll;    
+const int relayPin = D4;                                                                                                    //Inizialize variable for control PIN of the Relay on ESP8266 --> GPIO 2 (D4)
+float tempIst;
+int reset1 = 0;
+int status = 0;
+int resetPin = 14;
+PowerMeter powerMeter = PowerMeter(12, 13, 16);                                                                             //Inizialize class / variable for PowerMeter and declaration of GPIO's on ESP8266 --> GPIO 5 (D1), GPIO 4 (D2), GPIO 16 (D0)
+String ipHost = "192.168.178.71:3000";                                                                                         //Inizialize variable for Host-IP
+String deviceName = "SmartPlug_Temperature";                                                                                   //inizialize variable for device name
+//Add-On SmartTemperature
+#define ONE_WIRE_BUS 0                                                                                                      //Inizialize GPIO 0 (D3) as BUS-PIN
+OneWire oneWire(ONE_WIRE_BUS);                                                                                              //Set default values for temperature sensor
+DallasTemperature DS18B20(&oneWire);                                                                                        //Set default values for temperature sensor
+LiquidCrystal_I2C lcd(0x27, 20, 4);
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+void functionGET() 
+{
+  Serial.println(tempSoll);
+  HTTPClient http;                                                                                                          //Starting HTTPClient
+
+  http.begin(wifiClient, "http://" + ipHost + "/api/devices/" + deviceName);                                                //Specify request destination GET
+  
+  int httpCodeGET = http.GET();                                                                                             //Send the request GET                                                                                                
+  String payloadGET = http.getString();                                                                                     //Get the request response payloadGET
+  
+  Serial.print("httpCodeGET is: ");                                                                                         
+  Serial.println(httpCodeGET);                                                                                              //Check the returning code of GET (200 --> OK)                                                                                   
+  Serial.println(payloadGET);                                                                                               //Print the response payloadGET
+  
+  DynamicJsonDocument doc1(1024);                                                                                           //Create JSON document
+  DeserializationError error = deserializeJson(doc1, payloadGET);                                                           //Deserialize JSON document payloadGET
+
+  if (error) 
+  {                                                                                                                         //Error checking
+    Serial.print(F("deserializeJson(payloadGET) failed: "));
+    Serial.println(error.f_str());
+    return;
+  }
+  bool enabled = doc1["enabled"];                                                                                           //Deserialize row "enabled" of JSON document 
+  tempSoll = doc1["tempSoll"];
+  
+  Serial.println(enabled);                                                                                                  //Print status of "enabled"
+  Serial.println(tempSoll);
+
+  if (enabled == 0) 
+  {
+    digitalWrite(relayPin, LOW);
+  }
+  else
+  {
+    if (enabled == 1 && status == 0) 
+    {
+      if (tempSoll > tempIst) 
+      {
+        digitalWrite(relayPin, LOW);                                                                                          //enabled == 0 --> LOW (Relay off)
+        status = 1;                                                                                                        
+      }
+      else 
+        {
+        if(tempSoll < tempIst) 
+        {
+          digitalWrite(relayPin, HIGH);                                                                                       //enabled == 1 --> HIGH (Relay on)
+          status = 0; 
+        }
+      }                                                                                              
+    }
+    else
+    {
+      if (tempIst > tempSoll) {
+        status = 0;
+      }
+    }
+  }                                                                                       
+  http.end();                                                                                                               //Close connection
+  
+  //delay(6000);                                                                                                              //Send a GET request every 1 second
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+void functionPOST() 
+{ 
+  HTTPClient http;                                                                                                          //Starting HTTPClient
+
+  DynamicJsonDocument doc(1024);                                                                                            //Create JSON document
+  
+  JsonObject root = doc.to<JsonObject>();                                                                                   //Create JSON object --> Content of JSON object / document
+  root["temperatureInDegree"] = tempIst;
+  root["currentInAmpere"] = powerMeter.readValue(powerMeter.currentAddrL1);
+  root["voltageInVolt"] = powerMeter.readValue(powerMeter.voltsAddrL1);
+  root["powerInWatts"] = powerMeter.readValue(powerMeter.activePowerAddrL1);
+  root["powerFactor"] = powerMeter.readValue(powerMeter.powerFactorAddrL1);
+  root["frequencyInHertz"] = powerMeter.readValue(powerMeter.frequencyAddr);
+  root["importEnergyInkWh"] = powerMeter.readValue(powerMeter.importActiveEnergyAddr);
+  root["exportEnergyInkWh"] = powerMeter.readValue(powerMeter.exportActiveEnergyAddr);
+    
+  String payloadPOST;                                                                                                       //Inizialize payloadPOST
+  serializeJson(root, payloadPOST);                                                                                         //Serialize JSON object/document                                                                            
+  
+  http.begin(wifiClient, "http://" + ipHost + "/api/measurements/" + deviceName);                                           //Specify request destination POST
+  http.addHeader("Content-Type", "application/json");                                                                       //Specify content-type header POST                                                                            
+  
+  int httpCodePOST = http.POST(payloadPOST);                                                                                //Send the request / posting data to database
+  
+  Serial.print("httpCodePOST is: ");
+  Serial.println(httpCodePOST);                                                                                             //Check the returning code of POST (201 --> OK)  
+  Serial.println(payloadPOST);                                                                                              //Print the response payloadPOST
+  
+  http.end();                                                                                                               //Close connection
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+void lcdDisplay() 
+{
+  lcd.init();
+  lcd.backlight();
+
+  lcd.setCursor(0,0);
+  lcd.print("Current");
+  lcd.setCursor(0,1);
+  lcd.print(powerMeter.readValue(powerMeter.currentAddrL1));
+  lcd.print(" A");
+  lcd.setCursor(0,2);
+  lcd.print("Voltage");
+  lcd.setCursor(0,3);
+  lcd.print(powerMeter.readValue(powerMeter.voltsAddrL1));
+  lcd.print(" V");
+  lcd.setCursor(10,0);
+  lcd.print("Power");
+  lcd.setCursor(10,1);
+  lcd.print(powerMeter.readValue(powerMeter.activePowerAddrL1));
+  lcd.print(" W");
+  lcd.setCursor(10,2);
+  lcd.print("Frequency");
+  lcd.setCursor(10,3);
+  lcd.print(powerMeter.readValue(powerMeter.frequencyAddr));
+  lcd.print(" Hz");
+
+  delay(2000);
+  lcd.clear();
+  
+  lcd.setCursor(0,0);
+  lcd.print("-->Energy");
+  lcd.setCursor(0,1);
+  lcd.print(powerMeter.readValue(powerMeter.importActiveEnergyAddr));
+  lcd.print(" kWh");
+  lcd.setCursor(10,0);
+  lcd.print("TempIST");
+  lcd.setCursor(10,1);
+  lcd.print(tempIst);
+  lcd.print(" C");
+  lcd.setCursor(0,2);
+  lcd.print("<--Energy");
+  lcd.setCursor(0,3);
+  lcd.print(powerMeter.readValue(powerMeter.exportActiveEnergyAddr));
+  lcd.print(" kWh");
+  lcd.setCursor(10,2);
+  lcd.print("TempSOLL");
+  lcd.setCursor(10,3);
+  lcd.print(tempSoll);
+  lcd.print(" C");
+  
+  delay(2000);
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+void setup() 
+{
+  
+  Serial.begin(2400);                                                                                                       //Starting serial monitor of Arduino IDE
+    
+  WiFi.begin(ssid, password);                                                                                               //Starting WiFi Connection
+  pinMode(relayPin, OUTPUT);                                                                                                //Inizialize relay PIN as OUTPUT
+
+  digitalWrite(relayPin, LOW);                                                                                              //Set relay PIN on default LOW
+  digitalWrite(resetPin, HIGH);
+  pinMode(resetPin, OUTPUT);
+  
+  Serial.println("D1 mini was started");
+  Serial.println("Connecting to WiFi");
+  while (WiFi.status() != WL_CONNECTED)                                                                                     //Checking, if ESP8266 is connected to WiFi
+  {                                                                                   
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.print("Connected! IP-address: ");                                                                        
+  Serial.println(WiFi.localIP());                                                                                           //Printing local IP-Address
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+void loop() 
+{
+  if (WiFi.status() == WL_CONNECTED)
+  { 
+    for(int reset1 = 0; reset1 < 3; reset1 = reset1 +1)
+    {
+      for(int count = 0; count < 4; count = count +1) 
+      {
+        functionGET();                                                                                                        //Call function functionGET every 1 second
+        lcdDisplay();
+        DS18B20.requestTemperatures();                                                                                        //Send request to temperature sensor
+        tempIst = DS18B20.getTempCByIndex(0);                                                                                 //Get value from temperature sensor 
+      }                                             
+      functionPOST();                                                                                                         //Call function functionPOST every 30 second                                                       
+      }
+      digitalWrite(resetPin, LOW);
+      reset1 = 0;
+  }                                                                                                              
+  else 
+    {
+    Serial.println("Error in WiFi connection");
+    }
+    delay(500);
+}
