@@ -14,7 +14,11 @@
 
 3) Run migrations ``npm run db:deploy`` (just initial)
 
-4) Start backend ``npm run start:dev`` (start backend server)
+4) Run migrations ``npm run db:migrate`` (just if changes)
+
+5) Run Seeding ``npm run seed:db`` (just if changes)
+
+6) Start backend ``npm run start:dev`` (start backend server)
 
 ### API
 
