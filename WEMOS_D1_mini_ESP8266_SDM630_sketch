@@ -1,0 +1,103 @@
+Sketch for Smart Home System WEMOS D1 mini ESP8266 with EnergyMeter SDM630
+
+//including libraries
+
+#include <ESP8266HTTPClient.h>                                                                                              //include HTTPClient library
+#include <ESP8266WiFi.h>                                                                                                    //include WiFi library
+#include <ArduinoJson.h>                                                                                                    //include ArduinoJSON library
+#include <Arduino.h>                                                                                                        //include Arduino library
+#include <SoftwareSerial.h>                                                                                                 //include SoftwareSerial library
+#include "PowerMeter.h"                                                                                                     //include PowerMeter library
+#include <WiFiClient.h>                                                                                                     //include WiFiClient library
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//declareration of variables
+
+WiFiClient wifiClient;                                                                                                      //Inizialize variable for WiFiClient
+const char* ssid = "CoSES_WLAN1";                                                                                           //Inizialize variable for WiFi name
+const char* password = "WhyVer1$tand";                                                                                      //Inizialize variable for WiFi password    
+PowerMeter powerMeter = PowerMeter(12, 13, 16);                                                                             //Inizialize class / variable for PowerMeter and declaration of GPIO's on ESP8266 --> GPIO 5 (D1), GPIO 4 (D2), GPIO 16 (D0)
+String ipHost = "10.162.231.94:3000";                                                                                       //Inizialize variable for Host-IP
+String deviceName = "SDM_630_EnergyMeter";                                                                                  //inizialize variable for device name
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+void functionPOST() 
+{
+  HTTPClient http;                                                                                                          //Starting HTTPClient
+
+  DynamicJsonDocument doc(1024);                                                                                            //Create JSON document
+  
+  JsonObject root = doc.to<JsonObject>();                                                                                   //Create JSON object --> Content of JSON object / document
+  root["currentInAmpere"] = 0;
+  root["voltageInVolt"] = 0;
+  root["powerFactor"] = 0;
+  root["temperatureInDegree"] = tempIst;
+  root["powerInWatts"] = 0;
+  root["currentInAmpereL1"] = powerMeter.readValue(powerMeter.currentAddrL1);
+  root["currentInAmpereL2"] = powerMeter.readValue(powerMeter.currentAddrL2);
+  root["currentInAmpereL3"] = powerMeter.readValue(powerMeter.currentAddrL3);
+  root["voltageInVoltL1"] = powerMeter.readValue(powerMeter.voltsAddrL1);
+  //root["voltageInVoltL2"] = powerMeter.readValue(powerMeter.voltsAddrL2);
+  root["voltageInVoltL3"] = powerMeter.readValue(powerMeter.voltsAddrL3);
+  root["powerInWattsL1"] = powerMeter.readValue(powerMeter.activePowerAddrL1);
+  root["powerInWattsL2"] = powerMeter.readValue(powerMeter.activePowerAddrL2);
+  root["powerInWattsL3"] = powerMeter.readValue(powerMeter.activePowerAddrL3);
+  root["powerFactorL1"] = powerMeter.readValue(powerMeter.powerFactorAddrL1);
+  root["powerFactorL2"] = powerMeter.readValue(powerMeter.powerFactorAddrL2);
+  //root["powerFactorL3"] = powerMeter.readValue(powerMeter.powerFactorAddrL3);
+  root["frequencyInHertz"] = powerMeter.readValue(powerMeter.frequencyAddr);
+  root["importEnergyInkWh"] = powerMeter.readValue(powerMeter.importActiveEnergyAddr);
+  root["exportEnergyInkWh"] = powerMeter.readValue(powerMeter.exportActiveEnergyAddr);
+    
+  String payloadPOST;                                                                                                       //Inizialize payloadPOST
+  serializeJson(root, payloadPOST);                                                                                         //Serialize JSON object/document                                                                            
+  
+  http.begin(wifiClient, "http://" + ipHost + "/api/measurements/" + deviceName);                                           //Specify request destination POST
+  http.addHeader("Content-Type", "application/json");                                                                       //Specify content-type header POST                                                                            
+  
+  int httpCodePOST = http.POST(payloadPOST);                                                                                //Send the request / posting data to database
+  
+  Serial.print("httpCodePOST is: ");
+  Serial.println(httpCodePOST);                                                                                             //Check the returning code of POST (201 --> OK)  
+  Serial.println(payloadPOST);                                                                                              //Print the response payloadPOST
+  
+  http.end();                                                                                                               //Close connection
+
+  delay(10000);                                                                                                             //POST-Request every 10 seconds
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+void setup() 
+{
+  Serial.begin(2400);                                                                                                       //Starting serial monitor of Arduino IDE
+    
+  WiFi.begin(ssid, password);                                                                                               //Starting WiFi Connection
+  
+  Serial.println("D1 mini was started");
+  Serial.println("Connecting to WiFi");
+  while (WiFi.status() != WL_CONNECTED)                                                                                     //Checking, if ESP8266 is connected to WiFi
+  {                                                                                 
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.print("Connected! IP-address: ");                                                                        
+  Serial.println(WiFi.localIP());                                                                                           //Printing local IP-Address
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+void loop() 
+{
+  if (WiFi.status() == WL_CONNECTED)
+  {                                  
+      functionPOST();                                                                                                       //Call function functionPOST every 10 seconds                                                      
+  }                                                                                                      
+  else
+  {
+    Serial.println("Error in WiFi connection");
+  }
+  delay(500);
+}
