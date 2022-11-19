@@ -25,8 +25,8 @@ export class TemperatureDiagramComponent {
   initialLoaded: boolean = false;
 
   // 30 Seconds
-  private REFRESH_INTERVAL = 30 * 1000;
-  private NUMBER_OF_ENTRIES = 40;
+  private REFRESH_INTERVAL = 10 * 1000;
+  private NUMBER_OF_ENTRIES = 120;
 
   constructor(private readonly measureService: MeasureService) {
     setInterval(async () => {await this.refresh();}, this.REFRESH_INTERVAL);

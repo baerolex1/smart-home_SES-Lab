@@ -24,7 +24,7 @@ export class WattDiagramComponent {
 
   initialLoaded: boolean = false;
 
-  // 10 Seconds
+  // 30 Seconds
   private REFRESH_INTERVAL = 10 * 1000;
   private NUMBER_OF_ENTRIES = 120;
 
@@ -102,7 +102,7 @@ export class WattDiagramComponent {
 
       series.push({
         name: device.name,
-        data: valuesWithZero.reverse()
+        data: valuesWithZero
       })
     }
 
