@@ -44,7 +44,7 @@ export class SDM630DiagramComponent {
         type: 'spline',
       },
       title: {
-        text: 'Power Consumption per Sensor'
+        text: 'Power Consumption per phase'
       },
       tooltip: {
         valueSuffix: ' W'
@@ -93,17 +93,31 @@ export class SDM630DiagramComponent {
 
   private async getSeries() {
     const series = [];
-    const devices = this.devices.filter((device) => !device.name.includes('630'));
+    const devices = this.devices.filter((device) => device.name.includes('630'));
     for (const device of devices) {
       // Get one more entry for the difference
       const values = await this.measureService.getDiagramValues(device.name, this.NUMBER_OF_ENTRIES + 1);
-      const usedValues = values.map((entry) => parseFloat(parseFloat(entry['powerInWatts']).toFixed(2)));
-      const valuesWithZero = this.adjustValuesWithZeros(usedValues)
 
+      // L1
+      const usedValuesL1 = this.adjustValuesWithZeros(values.map((entry) => parseFloat(parseFloat(entry['powerInWattsL1']).toFixed(2))));
       series.push({
-        name: device.name,
-        data: valuesWithZero
-      })
+        name: 'Phase L1',
+        data: usedValuesL1
+      });
+
+      // L2
+      const usedValuesL2 = this.adjustValuesWithZeros(values.map((entry) => parseFloat(parseFloat(entry['powerInWattsL2']).toFixed(2))));
+      series.push({
+        name: 'Phase L2',
+        data: usedValuesL2
+      });
+
+      // L3
+      const usedValuesL3 = this.adjustValuesWithZeros(values.map((entry) => parseFloat(parseFloat(entry['powerInWattsL3']).toFixed(2))));
+      series.push({
+        name: 'Phase L3',
+        data: usedValuesL3
+      });
     }
 
     return series;
