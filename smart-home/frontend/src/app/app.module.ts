@@ -27,6 +27,7 @@ import { WattDiagramComponent } from './components/watt-diagram/watt-diagram.com
 import { MeasureService } from './services/measure.service';
 import { HighchartsChartModule } from 'highcharts-angular';
 import { TemperatureDiagramComponent } from './components/temperature-diagram/temperature-diagram.component';
+import { SDM630DiagramComponent } from './components/SDM630-diagram/SDM630-diagram.component';
 
 @NgModule({
   declarations: [
@@ -40,6 +41,7 @@ import { TemperatureDiagramComponent } from './components/temperature-diagram/te
     CurrentDataComponent,
     WattDiagramComponent,
     TemperatureDiagramComponent,
+    SDM630DiagramComponent,
   ],
   imports: [
     BrowserAnimationsModule,
