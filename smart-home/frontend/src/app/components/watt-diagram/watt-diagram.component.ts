@@ -102,7 +102,7 @@ export class WattDiagramComponent {
 
       series.push({
         name: device.name,
-        data: valuesWithZero.reverse()
+        data: valuesWithZero
       })
     }
 

@@ -101,7 +101,7 @@ export class TemperatureDiagramComponent {
       const valuesWithZero = this.adjustValuesWithZeros(usedValues)
       series.push({
         name: device.name,
-        data: valuesWithZero.reverse()
+        data: valuesWithZero
       })
     }
 
